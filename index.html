@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#111b19" /><meta name="description" content="一场三分钟的像素足球。带球、传切、射门，与电脑踢一场完整比赛。" />
+<title>开场 MATCHDAY · 像素足球</title><link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</head>
+<body>
+<main id="game">
+<header class="topbar">
+<div class="brand"><span class="brand-mark" aria-hidden="true">＋</span><span>开场 <small>MATCHDAY</small></span></div>
+<div class="scoreboard" aria-label="比赛比分与剩余时间"><span class="team home">主队</span><strong id="home-score">0</strong><span class="score-divider">:</span><strong id="away-score">0</strong><span class="team away">客队</span><time id="clock">03:00</time></div>
+<nav aria-label="比赛选项"><button id="open-key-settings">按键设置</button><button id="open-player-settings" aria-expanded="false" aria-controls="panel">球员参数</button><button id="sound" aria-pressed="true" title="M 切换声音">声音 开</button><button id="pause" disabled>暂停 <kbd data-control="pause">ESC</kbd></button></nav>
+</header>
+<div id="play-area">
+<div id="stage">
+<canvas id="screen" tabindex="0" aria-label="足球球场，WASD 移动，J 短传，K 射门，L 直塞，I 长传，Escape 暂停"></canvas>
+<div id="overlay">
+<section id="welcome" class="welcome" aria-labelledby="welcome-title">
+<div class="intro"><p class="eyebrow">11 对 11 / 单机比赛</p><h1 id="welcome-title">三分钟，<br>踢一场<span>。</span></h1><p class="lead">找到空档。传给队友。<br>把下一脚，踢进球门。</p><div class="team-line"><span class="kit red"></span>你是红队 <span class="attack-arrow">向右进攻 →</span></div></div>
+<div class="match-card"><p class="eyebrow">赛前准备</p><h2>准备好上场了吗</h2>
+<label class="setting" for="duration">比赛时长<select id="duration"><option value="60">1 分钟 · 快速热身</option><option value="180" selected>3 分钟 · 标准比赛</option><option value="300">5 分钟 · 从容对抗</option></select></label>
+<label class="setting switching-setting" for="switching">防守切人<select id="switching"><option value="assisted" selected>辅助 · 仅空中球和无主球</option><option value="manual">手动 · 按 J 切人</option></select><span class="setting-help"><span data-control="switchPlayer">J</span> 切到画面内的白色空心标记；跑位时不自动切人。</span></label>
+<ol class="quick-guide"><li><kbd data-movement>W A S D</kbd><span>移动，<b data-control="sprint">Shift</b> 加速</span></li><li><kbd data-control="passShort">J</kbd><span>短传给队友</span></li><li><kbd data-control="shoot">K</kbd><span>射门；门将持球时开大脚</span></li></ol>
+<p class="kick-note">传球和射门：按住蓄力，松开出球。<br>你没开球前，对方不能抢。</p><button id="start" class="primary">开始比赛 <span>↗</span></button><p class="micro">键盘操作 · 随时按 <span data-control="pause">Esc</span> 暂停</p>
+</div>
+</section>
+<section id="pause-view" class="pause-card" hidden aria-labelledby="pause-title"><p class="eyebrow">比赛暂停</p><h1 id="pause-title">喘口气，<br>再踢个好球。</h1><p id="pause-reason" class="lead">比赛和计时都已暂停。</p><label class="setting switching-setting" for="pause-switching">防守切人<select id="pause-switching"><option value="assisted" selected>辅助 · 仅空中球和无主球</option><option value="manual">手动 · 按 J 切人</option></select><span class="setting-help"><span data-control="switchPlayer">J</span> 切到画面内的白色空心标记；跑位时不自动切人。</span></label><div class="pause-actions"><button id="resume" class="primary">继续比赛 <span>→</span></button><button id="restart" class="secondary">重新开赛</button></div><p class="micro">重新开赛会清除本场比分和数据。</p></section>
+<section id="result-view" class="result-card" hidden aria-labelledby="result-title"><p class="eyebrow">全场结束 / FULL TIME</p><h1 id="result-title">好球，下一场见。</h1><div class="result-score"><span>主队 · 你</span><strong id="final-score">0 : 0</strong><span>客队 · 电脑</span></div><table aria-label="本场比赛数据"><thead><tr><th>主队</th><th>本场数据</th><th>客队</th></tr></thead><tbody id="result-stats"></tbody></table><button id="rematch" class="primary">再踢一场 <span>↗</span></button><button id="back-menu" class="text-button">返回赛前准备</button></section>
+</div>
+</div>
+<aside id="panel" hidden aria-label="球员与比赛参数"><div class="parameter-heading"><strong>球员参数</strong><button id="close-player-settings" aria-label="收起球员参数">收起</button></div></aside>
+</div>
+<footer class="match-footer"><div class="status-line"><span class="live-dot"></span><strong id="match-status" role="status">等待开场</strong><span id="match-detail">一场属于你的比赛</span></div><div class="controls"><span><kbd data-movement>WASD</kbd> 移动</span><span><kbd data-control="sprint">Shift</kbd> 冲刺</span><span id="j-hint"><kbd>J</kbd> 短传 / 切人</span><span id="k-hint"><kbd>K</kbd> 射门 / 抢断</span><span id="l-hint"><kbd>L</kbd> 直塞 / 铲球</span><span><kbd data-control="passLong">I</kbd> 长传</span></div></footer>
+</main>
+<dialog id="key-settings" aria-labelledby="key-settings-title">
+<div class="key-settings-heading"><div><p class="eyebrow">操作偏好</p><h2 id="key-settings-title">按你的习惯来踢</h2></div><button id="close-key-settings" aria-label="关闭按键设置">完成</button></div>
+<p id="key-settings-status" role="status">点击右侧按键再按新键；重复按键自动互换。</p>
+<div id="key-settings-tabs" aria-label="按键分类"></div><div id="key-settings-list"></div>
+<div class="key-settings-bottom"><p>支持字母、数字、方向键、空格、Shift 和 F1。<br>比赛中打开设置会暂停，改完后点击继续比赛。</p><button id="reset-key-settings">恢复默认</button></div>
+</dialog>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

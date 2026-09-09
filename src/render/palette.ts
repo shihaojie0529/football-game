@@ -1,0 +1,35 @@
+/** 有限调色板 —— 像素风的一致性来自"颜色少"，不是来自贴图（D28） */
+export const PALETTE = {
+  grassDark: "#2b7038",
+  grassLight: "#317c3e",
+  outfieldDark: "#20522a",
+  outfieldLight: "#245a2e",
+  line: "#e6efe4",
+  lineFaint: "rgba(230, 239, 228, 0.45)",
+  net: "rgba(235, 245, 235, 0.16)",
+  post: "#f2f7f0",
+
+  homeShirt: "#e0393e",
+  homeShirtDark: "#a4272c",
+  awayShirt: "#e8e6df",
+  awayShirtDark: "#a9a69c",
+  gkHome: "#3fb56b",
+  gkHomeDark: "#2a7a48",
+  gkAway: "#f0b429",
+  gkAwayDark: "#a87b17",
+  stun: "#8b97a6",
+  skin: "#e3a978",
+  hair: "#3a2a20",
+  boots: "#20242c",
+
+  ball: "#ffffff",
+  ballShade: "#b9bec6",
+  shadow: "rgba(0, 0, 0, 0.32)",
+
+  hudBg: "rgba(12, 16, 22, 0.72)",
+  hudText: "#dfe6ee",
+  hudDim: "#8b97a6",
+  chargeLow: "#f2d05a",
+  chargeHigh: "#f26d3d",
+  accent: "#7ee08a",
+} as const;

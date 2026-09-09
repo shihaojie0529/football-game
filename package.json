@@ -1,0 +1,30 @@
+{
+  "name": "football-team",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "check:layering": "node scripts/check-layering.mjs",
+    "sim": "node --experimental-strip-types scripts/sim-harness.ts",
+    "test:restart": "node --experimental-strip-types --test scripts/restart-regression.ts",
+    "test:match": "node --experimental-strip-types --test scripts/match-regression.ts",
+    "test:gameplay": "node --experimental-strip-types --test scripts/gameplay-regression.ts",
+    "test:switching": "node --experimental-strip-types --test scripts/switching-regression.ts",
+    "test:visible-switching": "node --experimental-strip-types --test scripts/visible-switching-regression.ts",
+    "test:pass-tempo": "node --experimental-strip-types --test scripts/pass-tempo-regression.ts",
+    "test:possession-control": "node --experimental-strip-types --test scripts/possession-control-regression.ts",
+    "test:long-pass": "node --experimental-strip-types --test scripts/long-pass-regression.ts",
+    "test:key-bindings": "node --experimental-strip-types --test scripts/key-bindings-regression.ts"
+  },
+  "dependencies": {
+    "lil-gui": "^0.19.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^5.4.10"
+  }
+}
