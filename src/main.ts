@@ -11,7 +11,7 @@ import type { DefenderSelection } from "./sim/switching.ts";
 import { Camera } from "./render/camera.ts";
 import { render } from "./render/index.ts";
 import { Screen } from "./render/screen.ts";
-import { createTuning } from "./tuning.ts";
+import { createMatchTuning } from "./tuning.ts";
 import { MatchShell } from "./ui/shell.ts";
 import { MatchAudio } from "./audio/match-audio.ts";
 import type { ScreenMode } from "./ui/match.ts";
@@ -20,7 +20,7 @@ const canvas = document.getElementById("screen");
 if (!(canvas instanceof HTMLCanvasElement)) throw new Error("#screen canvas not found");
 
 const screen = new Screen(canvas);
-const tuning = createTuning();
+const tuning = createMatchTuning();
 const world = createWorld();
 const camera = new Camera();
 const keyboard = new Keyboard(window, loadBindings());
@@ -99,7 +99,14 @@ function toggleSound(): void {
   shell.sound(audio.enabled);
 }
 
-createTuningGui(tuning, () => startMatch(tuning.rules.matchLength));
+createTuningGui(tuning, () => startMatch(tuning.rules.matchLength), (team) => {
+  for (const id of ["switching", "pause-switching"]) {
+    const select = shell.element(id);
+    if (team !== 1 && select instanceof HTMLSelectElement) select.value = tuning.ai.switching;
+  }
+  const duration = shell.element("duration");
+  if (team === undefined && duration instanceof HTMLSelectElement) duration.value = String(tuning.rules.matchLength);
+});
 camera.snapTo(world.ball.pos.x, world.ball.pos.y);
 audio.sync(world);
 shell.show("menu");

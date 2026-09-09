@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { CENTER_Y, GOAL_WIDTH, PITCH_LENGTH, PENALTY_BOX_DEPTH, PENALTY_BOX_WIDTH } from "./constants.ts";
 import { updatePlayer } from "./player.ts";
 import { predictBallPos } from "./predict.ts";
@@ -49,6 +49,7 @@ export function updateKeeper(
   t: Tuning,
   dt: number,
 ): boolean {
+  t = tuningForTeam(t, p.team);
   if (p.dive > 0) {
     p.dive = Math.max(0, p.dive - dt);
     if (p.dive === 0) p.stun = t.ai.gkDiveRecovery;
@@ -82,11 +83,10 @@ export function updateKeeper(
   if (cross && reacted && cross.z <= t.ai.gkCatchHeight * 1.6) {
     // 球朝门飞：横向移动到预判落点
     aimY = cross.y;
-    // 跑不过去就飞身
+    // 射正而跑不过去就尝试鱼跃，来不及的球也会扑空。
     const gap = Math.abs(aimY - p.pos.y);
     const reachable = t.ai.gkSpeed * Math.max(cross.time, 0.01);
-    const diveTravel = t.ai.gkDiveSpeed * Math.min(cross.time, t.ai.gkDiveWindow);
-    if (gap > reachable + t.ai.gkDiveTrigger && gap <= diveTravel + t.ai.gkDiveReach + p.radius) {
+    if (gap > reachable + t.ai.gkDiveTrigger && Math.abs(aimY - CENTER_Y) <= HALF_GOAL) {
       p.aim.y = clamp(aimY, CENTER_Y - HALF_GOAL - 1.2, CENTER_Y + HALF_GOAL + 1.2);
       p.dive = t.ai.gkDiveWindow;
       p.vel.y = Math.sign(aimY - p.pos.y) * t.ai.gkDiveSpeed;
@@ -121,12 +121,14 @@ export function updateKeeper(
 
 /** 门将能够到多远的球（鱼跃时更远） */
 export function keeperReach(p: Player, t: Tuning): number {
+  t = tuningForTeam(t, p.team);
   return p.dive > 0 ? t.ai.gkDiveReach : t.ai.gkReach;
 }
 
 
 /** 抱球时允许玩家在禁区内移动、转向；鱼跃与起身完整结束后才能行动。 */
 export function updateHeldKeeper(world: World, p: Player, input: InputState, t: Tuning, dt: number): void {
+  t = tuningForTeam(t, p.team);
   if (p.dive > 0 || p.stun > 0) {
     updateKeeper(world, p, t, dt);
     return;

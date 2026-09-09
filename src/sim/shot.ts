@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { lateralSpeed } from "./player.ts";
 import type { World } from "./types.ts";
 import { clamp, fromAngle } from "./vec.ts";
@@ -20,6 +20,7 @@ export function fireShot(world: World, t: Tuning, ratio: number): void {
   const kicker = b.owner;
   const p = world.players[b.owner];
   if (!p) return;
+  t = tuningForTeam(t, p.team);
 
   const r = clamp(ratio, 0, 1);
   const power = t.shot.minPower + (t.shot.maxPower - t.shot.minPower) * r;

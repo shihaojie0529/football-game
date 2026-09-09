@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { CENTER_Y, PITCH_LENGTH } from "./constants.ts";
 import { FORMATION_442, slotAnchor } from "./formation.ts";
 import { updatePlayer } from "./player.ts";
@@ -26,9 +26,9 @@ import { updateAttack } from "./attack.ts";
 const anchorScratch = { x: 0, y: 0 };
 const interceptScratch = { x: 0, y: 0 };
 
-export function updateTeamAI(world: World, t: Tuning, dt: number): void {
+export function updateTeamAI(world: World, tuning: Tuning, dt: number): void {
   if (world.phase === "restart" && world.restart) {
-    updateRestartAI(world, t, dt);
+    updateRestartAI(world, tuning, dt);
     return;
   }
   const ball = world.ball;
@@ -36,6 +36,7 @@ export function updateTeamAI(world: World, t: Tuning, dt: number): void {
   const possTeam = carrier ? carrier.team : null;
 
   for (const team of [0, 1] as const) {
+    const t = tuningForTeam(tuning, team);
     const hasBall = possTeam === team;
     // 阵线回收只在【对方持球】时发生。球是自由球（比如传球飞行中）不该回收 ——
     // 否则每传一脚球全队就往后缩 9 米，接球人被自己的阵型拖走。
@@ -124,12 +125,13 @@ export function updateTeamAI(world: World, t: Tuning, dt: number): void {
  * 主罚球员即使正是玩家控制的那个，也由 AI 驱动 —— 玩家不该被迫用自己的腿
  * 跑 20 米去捡球，那是纯粹的等待。球摆好（stage = ready）才把控制权交还。
  */
-function updateRestartAI(world: World, t: Tuning, dt: number): void {
+function updateRestartAI(world: World, tuning: Tuning, dt: number): void {
   const r = world.restart!;
   const ball = world.ball;
 
   for (let i = 0; i < world.players.length; i++) {
     const p = world.players[i]!;
+    const t = tuningForTeam(tuning, p.team);
     if (p.stun > 0) {
       updatePlayer(p, 0, 0, false, t, dt);
       continue;
@@ -438,6 +440,7 @@ function steer(p: Player, t: Tuning, dt: number, sprint: boolean, arriveRadius =
  * 规则很简单：你不按方向键，他就自己去接球；你一按方向键，立刻听你的。
  */
 export function autoReceive(world: World, t: Tuning, dt: number): boolean {
+  t = tuningForTeam(t, 0);
   if (world.ball.owner !== null) return false;
   if (world.receiver !== world.controlled) return false;
   const p = world.players[world.controlled];

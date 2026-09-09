@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { BALL_RADIUS } from "./constants.ts";
 import { dribbleTarget } from "./player.ts";
 import { attackDirOf, type World } from "./types.ts";
@@ -38,6 +38,7 @@ export function updatePossession(world: World, t: Tuning, dt: number): void {
       b.vz = b.spin = 0;
       return;
     }
+    t = tuningForTeam(t, owner.team);
     const target = dribbleTarget(owner, t);
     const dx = target.x - b.pos.x;
     const dy = target.y - b.pos.y;
@@ -108,19 +109,20 @@ export function updatePossession(world: World, t: Tuning, dt: number): void {
     if (onlyTaker >= 0 && i !== onlyTaker) continue;
     if (b.stickyLock > 0 && b.pickupBlockedPlayer === i) continue;
     const p = world.players[i]!;
+    const playerTuning = tuningForTeam(t, p.team);
     // 传球飞行期间，【本方】其他人不该顺手把这脚球捞走 —— 指定接球人有优先权。
     // 对手不受这个限制：把对方的传球截下来正是防守该干的事。
     const priority =
       world.receiver !== null && i !== world.receiver && p.team === receiverTeam
-        ? 1 - t.pass.receiverPriority
+        ? 1 - playerTuning.pass.receiverPriority
         : 1;
     // 门将有手：接球范围更大，而且能接高球（鱼跃时范围再放大）。
     // 场上球员只能碰到近乎贴地的球。
     const isGK = p.slot === 0;
-    if (isGK ? b.z > t.ai.gkCatchHeight : b.z > 0.5) continue;
+    if (isGK ? b.z > playerTuning.ai.gkCatchHeight : b.z > 0.5) continue;
     const reach = isGK
-      ? keeperReach(p, t) + p.radius + BALL_RADIUS
-      : t.dribble.stickyRadius * priority + p.radius + BALL_RADIUS;
+      ? keeperReach(p, playerTuning) + p.radius + BALL_RADIUS
+      : playerTuning.dribble.stickyRadius * priority + p.radius + BALL_RADIUS;
     const dist = Math.hypot(b.pos.x - p.pos.x, b.pos.y - p.pos.y);
     if (dist < reach && dist < bestDist) {
       bestDist = dist;

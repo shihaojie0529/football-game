@@ -1,5 +1,5 @@
 import type { Player } from "./types.ts";
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { fromAngle, len, normalized, rotateToward } from "./vec.ts";
 
 /**
@@ -17,6 +17,7 @@ export function updatePlayer(
   t: Tuning,
   dt: number,
 ): void {
+  t = tuningForTeam(t, p.team);
   // 硬直中完全不能动（D12：铲球落空的代价）
   if (p.stun > 0) {
     p.vel.x *= Math.max(0, 1 - t.move.deceleration * dt);
@@ -77,6 +78,7 @@ export function updatePlayer(
 
 /** 脚前的粘球目标点（D11） */
 export function dribbleTarget(p: Player, t: Tuning): { x: number; y: number } {
+  t = tuningForTeam(t, p.team);
   const d = fromAngle(p.facing, t.dribble.dribbleOffset);
   return { x: p.pos.x + d.x, y: p.pos.y + d.y };
 }

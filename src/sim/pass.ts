@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { PITCH_WIDTH, PITCH_LENGTH } from "./constants.ts";
 import { attackDirOf, type InputState, type World } from "./types.ts";
 import { clamp, fromAngle } from "./vec.ts";
@@ -64,6 +64,7 @@ export function firePass(
   if (world.phase !== "playing" && !(world.phase === "restart" &&
       world.restart?.stage === "ready" && world.restart.taker === b.owner)) return;
 
+  t = tuningForTeam(t, world.players[world.controlled]!.team);
   const cfg = t.pass[kind];
   const wantDist = cfg.minRange + (cfg.maxRange - cfg.minRange) * clamp(ratio, 0, 1);
 
@@ -120,6 +121,7 @@ function pickTarget(
   wantDist: number,
 ): Candidate | null {
   const from = world.players[world.controlled]!;
+  t = tuningForTeam(t, world.players[world.controlled]!.team);
   const cfg = t.pass[kind];
 
   let dirX = input.moveX;
@@ -323,6 +325,7 @@ function launch(
 ): void {
   const b = world.ball;
   const from = world.players[passer]!;
+  t = tuningForTeam(t, from.team);
   const cfg = t.pass[kind];
 
   const dx = target.aimX - b.pos.x;
@@ -383,6 +386,7 @@ export function fireAIPass(world: World, t: Tuning, passer: number, receiver: nu
   const from = world.players[passer];
   const to = world.players[receiver];
   if (world.phase !== "playing" || world.ball.owner !== passer || !from || !to || from.team !== to.team) return;
+  t = tuningForTeam(t, from.team);
   const aim = aimPoint(to.pos, to.vel, 0, world.ball.pos, t.pass.short, t);
   const distance = Math.hypot(aim.x - world.ball.pos.x, aim.y - world.ball.pos.y);
   launch(world, { index: receiver, aimX: aim.x, aimY: aim.y, score: 0 }, "short", t, distance, passer);

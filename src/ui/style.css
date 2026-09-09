@@ -137,3 +137,6 @@ td:nth-child(2) { color: var(--muted); font-size: 12px; }
 .parameter-heading { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between; padding: 12px; background: #14251c; border-bottom: 1px solid var(--line); font-size: 13px; }
 .parameter-heading button { padding: 6px 10px; background: #304536; border-radius: 3px; font-size: 12px; }
 @media (max-width: 760px) { .topbar { flex-wrap: wrap; height: auto; flex-basis: auto; padding-top: 10px; padding-bottom: 10px; } .topbar nav { margin-left: auto; } #panel { flex-basis: 260px; max-width: 75vw; } }
+
+.tuning-status { margin: 0; padding: 12px; color: #c6d4cf; font-size: 12px; line-height: 1.6; }
+#panel .lil-gui .controller.function button { min-height: 36px; }

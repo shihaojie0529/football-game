@@ -18,7 +18,8 @@
     "test:pass-tempo": "node --experimental-strip-types --test scripts/pass-tempo-regression.ts",
     "test:possession-control": "node --experimental-strip-types --test scripts/possession-control-regression.ts",
     "test:long-pass": "node --experimental-strip-types --test scripts/long-pass-regression.ts",
-    "test:key-bindings": "node --experimental-strip-types --test scripts/key-bindings-regression.ts"
+    "test:key-bindings": "node --experimental-strip-types --test scripts/key-bindings-regression.ts",
+    "test:team-tuning": "node --experimental-strip-types --test scripts/team-tuning-regression.ts"
   },
   "dependencies": {
     "lil-gui": "^0.19.2"

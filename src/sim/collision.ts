@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import {
   BALL_RADIUS,
   PLAYER_HEIGHT,
@@ -70,7 +70,7 @@ export function resolveCollisions(world: World, t: Tuning): void {
       if (vn < 0) {
         ball.vel.x -= nx * vn * 1.6;
         ball.vel.y -= ny * vn * 1.6;
-        ball.stickyLock = Math.max(ball.stickyLock, t.dribble.detachCooldown);
+        ball.stickyLock = Math.max(ball.stickyLock, tuningForTeam(t, other.team).dribble.detachCooldown);
         ball.pickupBlockedPlayer = null;
       }
     }

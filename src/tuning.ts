@@ -43,6 +43,8 @@ export interface PassKindTuning {
 }
 
 export interface Tuning {
+  /** 正式比赛使用两套球队参数；省略时供对称的模拟测试共用参数。 */
+  teams?: [TeamTuning, TeamTuning];
   /** 持球 AI 的决策节奏；与移动物理解耦。 */
   attack: { decisionDelay: number; passDelay: number; shotRange: number };
   /** 移动 */
@@ -531,12 +533,12 @@ export function createTuning(): Tuning {
       autoSwitchMargin: 0.35,
       pressRadius: 26,
       gkLineDepth: 1.6,
-      gkSpeed: 3.8,
-      gkReaction: 0.35,
-      gkReach: 0.7,
-      gkDiveReach: 1.25,
+      gkSpeed: 3.2,
+      gkReaction: 0.45,
+      gkReach: 0.6,
+      gkDiveReach: 1.0,
       gkCatchHeight: 2.6,
-      gkDiveSpeed: 9,
+      gkDiveSpeed: 7.5,
       gkDiveWindow: 0.4,
       gkDiveRecovery: 0.8,
       gkDiveTrigger: 0.55,
@@ -550,4 +552,46 @@ export function createTuning(): Tuning {
       maxLookahead: 8,
     },
   };
+}
+
+/** 球员能力按队独立，球物理、比赛规则和相机由全场共享。 */
+export type TeamTuning = Pick<Tuning, "attack" | "move" | "dribble" | "shot" | "pass" | "tackle" | "slide" | "ai">;
+const TEAM_KEYS = ["attack", "move", "dribble", "shot", "pass", "tackle", "slide", "ai"] as const;
+
+function teamSettings(t: Tuning): TeamTuning {
+  const { attack, move, dribble, shot, pass, tackle, slide, ai } = t;
+  return { attack, move, dribble, shot, pass, tackle, slide, ai };
+}
+
+export function createMatchTuning(): Tuning & { teams: [TeamTuning, TeamTuning] } {
+  const t = createTuning();
+  // 顶层球员参数仍指向我方，供控制设置和 HUD 读取。
+  return Object.assign(t, { teams: [teamSettings(t), teamSettings(createTuning())] as [TeamTuning, TeamTuning] });
+}
+
+export function tuningForTeam(t: Tuning, team: 0 | 1): Tuning {
+  return t.teams ? { ...t, ...t.teams[team] } : t;
+}
+
+/** 原地恢复，保留面板绑定的对象引用；不清空当前比赛。 */
+export function restoreTuningDefaults(t: Tuning, team?: 0 | 1): void {
+  const defaults = createTuning();
+  const restoreTeam = (target: TeamTuning): void => {
+    for (const key of TEAM_KEYS) {
+      if (key === "pass") {
+        const { short, long, through, ...common } = defaults.pass;
+        Object.assign(target.pass, common);
+        Object.assign(target.pass.short, short);
+        Object.assign(target.pass.long, long);
+        Object.assign(target.pass.through, through);
+      } else Object.assign(target[key], defaults[key]);
+    }
+  };
+  if (team !== undefined) {
+    restoreTeam(t.teams?.[team] ?? t);
+    return;
+  }
+  restoreTeam(t);
+  if (t.teams) for (const settings of t.teams) restoreTeam(settings);
+  for (const key of ["ball", "rules", "camera"] as const) Object.assign(t[key], defaults[key]);
 }

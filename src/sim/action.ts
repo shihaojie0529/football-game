@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { firePass } from "./pass.ts";
 import { startTackle } from "./tackle.ts";
 import { availableDefender, defenderScore, nextDefender, rankedDefenders, type DefenderSelection } from "./switching.ts";
@@ -42,6 +42,7 @@ export function updateAction(
   dt: number,
   selection?: DefenderSelection,
 ): void {
+  t = tuningForTeam(t, 0);
   const c = world.charge;
   if (world.phase === "restart" &&
       (world.restart?.stage !== "ready" || world.restart.taker !== world.controlled)) {
@@ -113,6 +114,7 @@ export function updateAction(
 
 /** 蓄力进度 0..1，渲染层画力度条用 */
 export function chargeRatio(world: World, t: Tuning): number {
+  t = tuningForTeam(t, 0);
   if (world.charge.kind === null) return 0;
   const max = world.charge.kind === "shot" ? t.shot.chargeTime : t.pass.chargeTime;
   return clamp(world.charge.time / max, 0, 1);
@@ -120,6 +122,7 @@ export function chargeRatio(world: World, t: Tuning): number {
 
 /** 按 J 确认刚显示的候选；候选失效时不偷偷改选另一人。 */
 function switchPlayer(world: World, t: Tuning, selection?: DefenderSelection): void {
+  t = tuningForTeam(t, 0);
   const next = selection ? (selection.controlled === world.controlled ? selection.next : null)
     : nextDefender(world, t);
   if (next === null || next === world.controlled || !availableDefender(world, next, selection?.view)) return;
@@ -135,6 +138,7 @@ function switchPlayer(world: World, t: Tuning, selection?: DefenderSelection): v
  * 本方接球的控制权移交仍由 possession / pass 负责。
  */
 export function autoSwitchDefence(world: World, t: Tuning, dt: number, input: InputState, selection?: DefenderSelection): void {
+  t = tuningForTeam(t, 0);
   world.switchLock = Math.max(0, world.switchLock - dt);
   world.switchManualChain = Math.max(0, world.switchManualChain - dt);
   const moving = Math.hypot(input.moveX, input.moveY) > 0.01;

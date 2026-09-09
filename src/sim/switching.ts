@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { interceptPoint } from "./predict.ts";
 import type { World } from "./types.ts";
 import { clamp } from "./vec.ts";
@@ -24,6 +24,7 @@ export function availableDefender(world: World, index: number, view?: DefenderVi
 export function defenderScore(world: World, index: number, t: Tuning): number {
   const p = world.players[index]!;
   const b = world.ball;
+  t = tuningForTeam(t, p.team);
   const speed = t.move.maxSpeed * t.move.sprintMultiplier;
   let target = b.pos;
   let arrival: number;

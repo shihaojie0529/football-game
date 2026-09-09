@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { gainPossession } from "./possession.ts";
 import { foul } from "./rules.ts";
 import { attackDirOf, type LungeKind, type Player, type World } from "./types.ts";
@@ -54,13 +54,14 @@ export function updateTackleTimers(world: World, t: Tuning, dt: number): void {
   // 而且硬直也不会消化，比赛恢复的瞬间人还是僵的。
   if (world.phase === "playing") resolveTackles(world, t);
   for (const p of world.players) {
+    const playerTuning = tuningForTeam(t, p.team);
     if (p.stun > 0) p.stun = Math.max(0, p.stun - dt);
     if (p.tackleCooldown > 0) p.tackleCooldown = Math.max(0, p.tackleCooldown - dt);
     if (p.lunge > 0) {
       p.lunge = Math.max(0, p.lunge - dt);
       if (p.lunge === 0) {
         // 窗口耗尽而球还没断下来 → 判定落空，吃硬直
-        p.stun = spec(t, p.lungeKind ?? "poke").recovery;
+        p.stun = spec(playerTuning, p.lungeKind ?? "poke").recovery;
         p.lungeKind = null;
       }
     }
@@ -76,6 +77,7 @@ export function startTackle(
 ): boolean {
   const p = world.players[index];
   if (!p) return false;
+  t = tuningForTeam(t, p.team);
   // 死球期间不能出脚：对方还在退规定距离，这时候能铲就没有"退开"可言了
   if (world.phase !== "playing") return false;
   if (p.stun > 0 || p.lunge > 0 || p.tackleCooldown > 0) return false;
@@ -93,13 +95,14 @@ export function startTackle(
 }
 
 /** 判定窗口内够到球就断下来；够不到球却撞到人就是犯规 */
-function resolveTackles(world: World, t: Tuning): void {
+function resolveTackles(world: World, tuning: Tuning): void {
   const b = world.ball;
   const carrier = b.owner !== null ? world.players[b.owner] : undefined;
 
   if (b.z <= 0.5 || carrier?.slot === 0) {
     for (let i = 0; i < world.players.length; i++) {
       const p = world.players[i]!;
+      const t = tuningForTeam(tuning, p.team);
       if (p.lunge <= 0 || (carrier ? p.team === carrier.team : p.team === world.lastTouch)) continue;
       // 门将已经抱住的球不能从手中踢走。
       if (carrier?.slot === 0) continue;
@@ -140,6 +143,7 @@ function resolveTackles(world: World, t: Tuning): void {
   // 没够到球的那些人，检查有没有撞到人 → 犯规（D5）
   for (let i = 0; i < world.players.length; i++) {
     const p = world.players[i]!;
+    const t = tuningForTeam(tuning, p.team);
     if (p.lunge <= 0) continue;
     const s = spec(t, p.lungeKind ?? "poke");
     for (const q of world.players) {

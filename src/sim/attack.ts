@@ -1,4 +1,4 @@
-import type { Tuning } from "../tuning.ts";
+import { tuningForTeam, type Tuning } from "../tuning.ts";
 import { CENTER_Y, PITCH_LENGTH } from "./constants.ts";
 import { fireAIPass, isOffside } from "./pass.ts";
 import { fireShot } from "./shot.ts";
@@ -7,6 +7,7 @@ import { clamp, rotateToward } from "./vec.ts";
 
 /** 返回 true 时本 tick 正在准备/完成出球；否则继续带球推进。 */
 export function updateAttack(world: World, p: Player, index: number, t: Tuning, dt: number): boolean {
+  t = tuningForTeam(t, p.team);
   if (world.phase !== "playing" || world.ball.owner !== index) return false;
   p.holdTime += dt;
   if (p.holdTime < t.attack.decisionDelay) return false;
